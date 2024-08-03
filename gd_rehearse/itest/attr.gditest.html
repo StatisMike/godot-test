@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Integration test between Godot and Rust."><title>gditest in gd_rehearse::itest - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gd_rehearse" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.0 (051478957 2024-07-21)" data-channel="1.80.0" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../gd_rehearse/index.html">gd_rehearse</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><h2><a href="index.html">In gd_rehearse::itest</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="../index.html">gd_rehearse</a>::<wbr><a href="index.html">itest</a>::<wbr><a class="attr" href="#">gditest</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[gditest]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Integration test between Godot and Rust.</p>
+<p>Similar to <code>#[test]</code>, but converts the function into an integration test between Godot and Rust.</p>
+<p>It transforms and registers the annotated function for further usage by <a href="gd_rehearse_defs::runner::GdTestRunner"><code>GdTestRunner</code></a>
+in some Godot test scene. When the runner enters the scene, it will run all qualified tests.</p>
+<p>A function annotated with <code>#[gditest]</code> needs to:</p>
+<ul>
+<li>Have no return values.</li>
+<li>Have no parameters or only a singular <a href="gd_rehearse_defs::cases::rust_test_case::TestContext"><code>TestContext</code></a>.</li>
+</ul>
+<h3 id="attributes"><a class="doc-anchor" href="#attributes">§</a>Attributes</h3>
+<p>An attribute-less macro will make the tests run, but some attributes are available for better customizability, especially when working
+on specific attributes and creating more narrow test runner scenes.</p>
+<ul>
+<li><code>skip</code>: Skips the test during run.</li>
+<li><code>focus</code>: Forces focus run, in which only tests annotated with <code>focus</code> will be run.</li>
+<li><code>keyword</code>: A specific keyword that will be picked up by the runner, and the test will be run only if the runner has the same keyword specified.</li>
+<li><code>scene_path</code>: Godot path to the scene. If specified, given benchmark will only run if runner’s scene path is the same.</li>
+</ul>
+<h3 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>gd_rehearse::itest::<span class="kw-2">*</span>;
+
+<span class="comment">// Causes a focus run during which only the focused tests will be executed, but only with
+// `my test` as a keyword in the runner.
+</span><span class="attr">#[gditest(focus, keyword = <span class="string">"my test"</span>)]
+</span><span class="kw">fn </span>focused_test() {
+    <span class="macro">assert!</span>(<span class="bool-val">true</span>);
+}
+
+<span class="comment">// Will be skipped during the default run.
+</span><span class="attr">#[gditest(skip)]
+</span><span class="kw">fn </span>skipped_test() {
+    <span class="kw">let </span>test = <span class="number">1 </span>+ <span class="number">1</span>;
+    <span class="macro">assert_eq!</span>(test, <span class="number">1</span>);
+}
+
+<span class="comment">// Can access the `GdTestRunner` scene_tree.
+</span><span class="attr">#[gditest]
+</span><span class="kw">fn </span>test_with_ctx(ctx: <span class="kw-2">&amp;</span>TestContext) {
+    ctx.scene_tree().instance_id();
+}
+
+<span class="comment">// Will only run in `res://special_cases.tscn` scene.
+</span><span class="attr">#[gditest(scene_path=<span class="string">"res://special_cases.tscn"</span>)]
+</span><span class="kw">fn </span>test_with_path(ctx: <span class="kw-2">&amp;</span>TestContext) {
+    <span class="kw">let </span>test_node = ctx.scene_tree().get_node_or_null(<span class="string">"SomeTestNode"</span>.into());
+    <span class="macro">assert!</span>(test_node.is_some());
+    <span class="macro">assert!</span>(!test_node.unwrap().get(<span class="string">"property_should_be_here"</span>.into()).is_nil());
+}  </code></pre></div>
+</div></details></section></div></main></body></html>

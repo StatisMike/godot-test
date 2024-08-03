@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["gditest"],"struct":["RustTestCase","TestContext"],"trait":["CaseContext"]};
